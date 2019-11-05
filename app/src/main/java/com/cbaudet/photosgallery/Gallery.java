@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -39,6 +40,7 @@ public class Gallery extends View {
 
         mPaint = new Paint();
 
+
         mScaleGestureDetector = new ScaleGestureDetector(context, new ScaleGesture());
     }
 
@@ -53,39 +55,19 @@ public class Gallery extends View {
 
         int itemPerRow = Math.max(Math.round(MAX_IMAGE_ROW / mScale), MIN_IMAGE_ROW);
 
-        float imageWidth = (mDisplayMetrics.widthPixels - ((itemPerRow + 1 ) * MARGIN))/itemPerRow;
-        double nbRow = Math.ceil(this.mImages.size() / itemPerRow);
-
+        int imageWidth = (int) (mDisplayMetrics.widthPixels - ((itemPerRow + 1 ) * MARGIN))/itemPerRow;
+        int nbRow = (int) Math.ceil(this.mImages.size() / itemPerRow);
+        Log.d("NB ROW", imageWidth + "");
+        Log.d("ITEM ROW", itemPerRow + "");
         for (int i = 0; i < nbRow; i++) {
             for (int j = 0; j < itemPerRow; j++) {
                 int index = (i * itemPerRow) + j;
                 float x = j * MARGIN + (j-1) * imageWidth;
-                float y = mY + (i * MARGIN + (i-1) * imageWidth);
-                Bitmap scaledBitmap = Bitmap.createScaledBitmap(mImages.get(index), (int) imageWidth, (int) imageWidth, false);
-                canvas.drawBitmap(scaledBitmap, x, y, mPaint);
-
+                float y = (i * MARGIN + (i-1) * imageWidth);
+                Bitmap b = Bitmap.createScaledBitmap(mImages.get(index), 300, 300, true);
+                canvas.drawBitmap(b, x, y, mPaint);
             }
         }
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        mGestureDetector.onTouchEvent(event);
-        mScaleGestureDetector.onTouchEvent(event);
-
-        switch (event.getAction() & MotionEvent.ACTION_MASK) {
-            case MotionEvent.ACTION_DOWN:
-            case MotionEvent.ACTION_POINTER_DOWN:
-            case MotionEvent.ACTION_MOVE:
-                mY = event.getY();
-                invalidate();
-                break;
-            case MotionEvent.ACTION_CANCEL:
-                // IDK ?
-                //invalidate();
-                break;
-        }
-        return true;
     }
 
     public class ScaleGesture extends ScaleGestureDetector.SimpleOnScaleGestureListener {
