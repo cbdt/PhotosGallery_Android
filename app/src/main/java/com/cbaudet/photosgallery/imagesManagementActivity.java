@@ -1,9 +1,13 @@
 package com.cbaudet.photosgallery;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -19,54 +23,72 @@ import java.util.List;
 import static androidx.core.app.ActivityCompat.startActivityForResult;
 
 public class imagesManagementActivity extends AppCompatActivity {
-    final static int GALLERY_REQUEST_CODE =10;
-    List<Bitmap> imagesLists;
+    private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
+    List<Bitmap> images;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_images_management);
-        imagesLists=new ArrayList<Bitmap>();
+        images = new ArrayList<Bitmap>();
+
+        if(ContextCompat.checkSelfPermission(imagesManagementActivity.this,
+                Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED)
+            ActivityCompat.requestPermissions(imagesManagementActivity.this,
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                    MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+
+        getPictures();
+        //images = getPictures();
+
     }
 
-    public List<Bitmap> pickFromGallery(View v){
-        //Create an Intent with action as ACTION_PICK
-        Intent intent=new Intent(Intent.ACTION_PICK);
-        // Sets the type as image/*. This ensures only components of type image are selected
-        intent.setType("image/*");
-        //We pass an extra array with the accepted mime types. This will ensure only components with these MIME types as targeted.
-        String[] mimeTypes = {"image/jpeg", "image/png"};
-        intent.putExtra(Intent.EXTRA_MIME_TYPES,mimeTypes);
-        // Launching the Intent
-        startActivityForResult(intent,GALLERY_REQUEST_CODE);
-        return imagesLists;
-    }
-
-
-
-    public void onActivityResult(int requestCode,int resultCode,Intent data){
-        // Result code is RESULT_OK only if the user selects an Image
-        if (resultCode == Activity.RESULT_OK)
-            switch (requestCode){
-                case GALLERY_REQUEST_CODE:
-                    //data.getData return the content URI for the selected Image
-                    Uri selectedImage = data.getData();
-                    String[] filePathColumn = { MediaStore.Images.Media.DATA };
-                    // Get the cursor
-                    Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
-                    // Move to first row
-                    cursor.moveToFirst();
-                    //Get the column index of MediaStore.Images.Media.DATA
-                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                    //Gets the String value in the column
-                    String imgDecodableString = cursor.getString(columnIndex);
-                    cursor.close();
-                    // Set the Image in ImageView after decoding the String
-                    //imageView.setImageBitmap(BitmapFactory.decodeFile(imgDecodableString));
-                    imagesLists.add(BitmapFactory.decodeFile(imgDecodableString));
-                    break;
-
+    private void getPictures(){
+        //ArrayList<imageFolder> picFolders = new ArrayList<>();
+        ArrayList<String> picPaths = new ArrayList<>();
+        Uri allImagesuri = android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+        String[] projection = { MediaStore.Images.ImageColumns.DATA ,MediaStore.Images.Media.DISPLAY_NAME,
+                MediaStore.Images.Media.BUCKET_DISPLAY_NAME,MediaStore.Images.Media.BUCKET_ID};
+        Cursor cursor = this.getContentResolver().query(allImagesuri, projection, null, null, null);
+        try {
+            if (cursor != null) {
+                cursor.moveToFirst();
             }
+            do{
+                //imageFolder folds = new imageFolder();
+                String name = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME));
+                String folder = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_DISPLAY_NAME));
+                String datapath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA));
 
+                //String folderpaths =  datapath.replace(name,"");
+                String folderpaths = datapath.substring(0, datapath.lastIndexOf(folder+"/"));
+                folderpaths = folderpaths+folder+"/";
+                if (!picPaths.contains(folderpaths)) {
+                    picPaths.add(folderpaths);
+                    images.add(BitmapFactory.decodeFile(datapath));
+                    /*folds.setPath(folderpaths);
+                    folds.setFolderName(folder);
+                    folds.setFirstPic(datapath);//if the folder has only one picture this line helps to set it as first so as to avoid blank image in itemview
+                    folds.addpics();
+                    picFolders.add(folds);*/
+                }else{
+                    /*for(int i = 0;i<picFolders.size();i++){
+                        if(picFolders.get(i).getPath().equals(folderpaths)){
+                            picFolders.get(i).setFirstPic(datapath);
+                            picFolders.get(i).addpics();
+                        }
+                    }*/
+                }
+            }while(cursor.moveToNext());
+            cursor.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        /*for(int i = 0;i < picFolders.size();i++){
+            Log.d("picture folders",picFolders.get(i).getFolderName()+" and path = "+picFolders.get(i).getPath()+" "+picFolders.get(i).getNumberOfPics());
+        }*/
+
+        Log.d("TEST",images.size()+"");
     }
 }
