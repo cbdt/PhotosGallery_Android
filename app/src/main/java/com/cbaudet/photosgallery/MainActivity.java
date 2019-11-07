@@ -83,18 +83,8 @@ public class MainActivity extends AppCompatActivity {
     private int calculateInSampleSize(BitmapFactory.Options options, int maxWidth) {
         // Raw width of image
         final int width = options.outWidth;
-        int inSampleSize = 1;
-
-        if (width > maxWidth) {
-
-            final int dividedWidth=width;
-
-            while ((dividedWidth / inSampleSize) >= maxWidth) {
-                inSampleSize ++;
-            }
-        }
+        int inSampleSize = Math.max(Math.round(width/maxWidth),1);
         Log.e("inSampleSize", "" + inSampleSize);
-
         return inSampleSize;
     }
 
