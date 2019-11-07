@@ -21,7 +21,6 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
-    private static final int MAX_IMAGE_ROW = 7;
     private static int DISPLAY_WIDTH;
 
     List<List<Bitmap>> images;
@@ -43,8 +42,6 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(MainActivity.this,
                     new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
                     MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-
-
     }
 
     @Override
@@ -53,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
 
         getPictures();
         galleryView.setImages(images);
+
     }
 
     private void getPictures(){
@@ -77,15 +75,12 @@ public class MainActivity extends AppCompatActivity {
         Point size = new Point();
         display.getSize(size);
         int width = size.x;
-        int height = size.y;
-        Log.e("Width", "" + width);
-        Log.e("Height", "" + height);
         return width;
     }
 
     // calcul le nombre de fois qu'on divise la hauteur et largeur
     // de l'image pour que ça largeur soit inferieur au maxWidth
-    private static int calculateInSampleSize(BitmapFactory.Options options, int maxWidth) {
+    private int calculateInSampleSize(BitmapFactory.Options options, int maxWidth) {
         // Raw width of image
         final int width = options.outWidth;
         int inSampleSize = 1;
@@ -104,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // renvoie le bitmap resizé
-    private static Bitmap decodeSampledBitmapFromFile(String datapath, int maxWidth) {
+    private Bitmap decodeSampledBitmapFromFile(String datapath, int maxWidth) {
 
         // First decode with inJustDecodeBounds=true to check dimensions
         final BitmapFactory.Options options = new BitmapFactory.Options();
@@ -122,9 +117,9 @@ public class MainActivity extends AppCompatActivity {
     // on construit une liste avec les differentes tailles (autant qu'il y a de possibilité donc ici 7)
     // sachant que la taille disponible pour l'image est de
     // (taille de l'ecran/nb d'image à afficher sur la ligne)
-    private static List<Bitmap> getListResizedPicture(String datapath){
+    private List<Bitmap> getListResizedPicture(String datapath){
         List<Bitmap> resizedPictures = new ArrayList<>();
-        for (int i=1;i<=MAX_IMAGE_ROW;i++){
+        for (int i=1;i<=galleryView.MAX_IMAGE_ROW;i++){
             resizedPictures.add(decodeSampledBitmapFromFile(datapath,DISPLAY_WIDTH/i));
         }
         return resizedPictures;
