@@ -46,7 +46,7 @@ public class Gallery extends View {
     }
 
     /**
-     *
+     * Charge les images puis on invalide le layout
      * @param images Liste de samples de bitmaps en fonction du nombre d'image par ligne
      */
     public void setImages(List<Bitmap[]> images) {
@@ -91,12 +91,13 @@ public class Gallery extends View {
             return true;
         }
     }
-    
+
     public class ScrollGesture extends  GestureDetector.SimpleOnGestureListener {
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
             //boolean canGoesDown = startY > (((nbRow * imageWidth) + ((nbRow+1)*MARGIN)) * -1);
             startY -= distanceY;
+            // On ne veux pas scroll au dessus de la marge
             if(startY-distanceY > MARGIN) {
                 startY = MARGIN;
             }
