@@ -31,7 +31,7 @@ public class Gallery extends View {
 
     int statusBarHeight = 0;
 
-    private List<Bitmap> mImages = new ArrayList<>();
+    private List<List<Bitmap>> mImages = new ArrayList<>();
     int startY = 0;
 
     public Gallery(Context context) {
@@ -55,7 +55,7 @@ public class Gallery extends View {
         mScrollGestureDetector = new GestureDetector(context, new ScrollGesture());
     }
 
-    public void setImages(List<Bitmap> images) {
+    public void setImages(List<List<Bitmap>> images) {
         this.mImages = images;
         invalidate();
     }
@@ -75,7 +75,7 @@ public class Gallery extends View {
                 int index = (i * itemPerRow) + j;
                 float x = (j+1) * MARGIN + j * imageWidth;
                 float y = startY + ((i+1) * MARGIN) + (i * imageWidth);
-                Bitmap b = Bitmap.createScaledBitmap(mImages.get(index), imageWidth, imageWidth, true);
+                Bitmap b = Bitmap.createScaledBitmap(mImages.get(index).get(6), imageWidth, imageWidth, true);
                 canvas.drawBitmap(b, x, y, mPaint);
             }
         }
