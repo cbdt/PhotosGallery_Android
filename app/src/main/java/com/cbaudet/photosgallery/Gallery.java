@@ -15,7 +15,9 @@ import android.view.View;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * Composant principal de l'application, c'est cette vue qui est chargée d'afficher toute la gallerie
+ */
 public class Gallery extends View {
 
     public final int MAX_IMAGE_ROW = 7;
@@ -29,10 +31,9 @@ public class Gallery extends View {
     private GestureDetector mScrollGestureDetector;
     private ScaleGestureDetector mScaleGestureDetector;
 
-    private Paint mPaint;
     private DisplayMetrics mDisplayMetrics;
 
-    private List<List<Bitmap>> mImages = new ArrayList<>();
+    private List<Bitmap[]> mImages = new ArrayList<>();
     int startY = 0;
 
     public Gallery(Context context) {
@@ -40,13 +41,15 @@ public class Gallery extends View {
 
         mDisplayMetrics = getResources().getDisplayMetrics();
 
-        mPaint = new Paint();
-
         mScaleGestureDetector = new ScaleGestureDetector(context, new ScaleGesture());
         mScrollGestureDetector = new GestureDetector(context, new ScrollGesture());
     }
 
-    public void setImages(List<List<Bitmap>> images) {
+    /**
+     *
+     * @param images Liste de samples de bitmaps en fonction du nombre d'image par ligne
+     */
+    public void setImages(List<Bitmap[]> images) {
         this.mImages = images;
         invalidate();
     }
@@ -54,7 +57,6 @@ public class Gallery extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        Log.d("DRAW", "DRAWWW");
         int size = this.mImages.size();
 
         int itemPerRow = Math.max(Math.round(MAX_IMAGE_ROW / Math.max(mScale, 1)), MIN_IMAGE_ROW);
@@ -68,8 +70,8 @@ public class Gallery extends View {
                 int index = (i * itemPerRow) + j;
                 float x = (j+1) * MARGIN + j * imageWidth;
                 float y = startY + ((i+1) * MARGIN) + (i * imageWidth);
-                Bitmap b = Bitmap.createScaledBitmap(mImages.get(index).get(itemPerRow - 1), imageWidth, imageWidth, true);
-                canvas.drawBitmap(b, x, y, mPaint);
+                Bitmap b = Bitmap.createScaledBitmap(mImages.get(index)[itemPerRow - 1], imageWidth, imageWidth, true);
+                canvas.drawBitmap(b, x, y, null);
             }
         }
     }
@@ -89,7 +91,7 @@ public class Gallery extends View {
             return true;
         }
     }
-
+    
     public class ScrollGesture extends  GestureDetector.SimpleOnGestureListener {
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {

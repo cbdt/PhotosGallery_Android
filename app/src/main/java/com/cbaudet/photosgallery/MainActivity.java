@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
     private static int DISPLAY_WIDTH;
 
-    List<List<Bitmap>> images;
+    List<Bitmap[]> images;
 
     Gallery galleryView;
 
@@ -61,8 +61,8 @@ public class MainActivity extends AppCompatActivity {
         if(cursor != null) {
             while (cursor.moveToNext()) {
                 String datapath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA));
-                List<Bitmap> b = getListResizedPicture(datapath);
-                images.add(b);
+                Bitmap[] bitmaps = getListResizedPicture(datapath);
+                images.add(bitmaps);
             }
             cursor.close();
         }
@@ -117,10 +117,10 @@ public class MainActivity extends AppCompatActivity {
     // on construit une liste avec les differentes tailles (autant qu'il y a de possibilité donc ici 7)
     // sachant que la taille disponible pour l'image est de
     // (taille de l'ecran/nb d'image à afficher sur la ligne)
-    private List<Bitmap> getListResizedPicture(String datapath){
-        List<Bitmap> resizedPictures = new ArrayList<>();
+    private Bitmap[] getListResizedPicture(String datapath){
+        Bitmap[] resizedPictures = new Bitmap[galleryView.MAX_IMAGE_ROW];
         for (int i=1;i<=galleryView.MAX_IMAGE_ROW;i++){
-            resizedPictures.add(decodeSampledBitmapFromFile(datapath,DISPLAY_WIDTH/i));
+            resizedPictures[i-1] = decodeSampledBitmapFromFile(datapath,DISPLAY_WIDTH/i);
         }
         return resizedPictures;
     }
