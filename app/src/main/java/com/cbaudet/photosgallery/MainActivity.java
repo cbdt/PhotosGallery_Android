@@ -19,6 +19,9 @@ import androidx.core.content.ContextCompat;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Cette classe gère la récupération des images
+ */
 public class MainActivity extends AppCompatActivity {
     private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
     private static int DISPLAY_WIDTH;
@@ -53,6 +56,9 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Permet de récupérer les images du téléphones dans plusieurs tailles diffrentes
+     */
     private void getPictures(){
         Uri allImagesuri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
         String[] projection = { MediaStore.Images.ImageColumns.DATA};
@@ -68,8 +74,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // permet de recup la largeur de l'écran car au final pas besoin
-    // d'afficher une image avec plus de pixel qu'on en a de dispo
+    /**
+     * Permet de connaitre la largeur de l'écran
+     * (Pas besoin d'afficher une image avec trop de pixels si on ne voit pas la difference sur l'écran)
+     */
     private int getDisplayWidth(){
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
@@ -78,17 +86,21 @@ public class MainActivity extends AppCompatActivity {
         return width;
     }
 
-    // calcul le nombre de fois qu'on divise la hauteur et largeur
-    // de l'image pour que ça largeur soit inferieur au maxWidth
+    /**
+     * Calcule le nombre de fois qu'on divise la hauteur et la largeur de l'image
+     * On choisit de diviser au maximum tout en ayant plus de pixels de largeur que disponible
+     * pour ne pas avoir une image floue
+     */
     private int calculateInSampleSize(BitmapFactory.Options options, int maxWidth) {
         // Raw width of image
         final int width = options.outWidth;
         int inSampleSize = Math.max(Math.round(width/maxWidth),1);
-        Log.e("inSampleSize", "" + inSampleSize);
         return inSampleSize;
     }
 
-    // renvoie le bitmap resizé
+    /**
+     * Renvoie le bitmap bien redimmensionné
+     */
     private Bitmap decodeSampledBitmapFromFile(String datapath, int maxWidth) {
 
         // First decode with inJustDecodeBounds=true to check dimensions
@@ -104,9 +116,10 @@ public class MainActivity extends AppCompatActivity {
         return BitmapFactory.decodeFile(datapath, options);
     }
 
-    // on construit une liste avec les differentes tailles (autant qu'il y a de possibilité donc ici 7)
-    // sachant que la taille disponible pour l'image est de
-    // (taille de l'ecran/nb d'image à afficher sur la ligne)
+    /**
+     * Renvoie une liste avec les differentes tailles d'images
+     * La taille disponible pour une image diminue en fonction du nombre d'images dans la ligne
+     */
     private Bitmap[] getListResizedPicture(String datapath){
         Bitmap[] resizedPictures = new Bitmap[galleryView.MAX_IMAGE_ROW];
         for (int i=1;i<=galleryView.MAX_IMAGE_ROW;i++){
